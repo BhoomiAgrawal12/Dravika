@@ -101,6 +101,8 @@ export class PolicyEngine {
     private readonly registry: RecognizerRegistry,
     private readonly vault: Vault,
     readonly policyVersion: string,
+    /** Benchmark-only override of the per-mode analyzer threshold. */
+    private readonly threshold?: number,
   ) {}
 
   /**
@@ -114,7 +116,7 @@ export class PolicyEngine {
     used: Set<PiiClass>,
     counters: { overflows: number },
   ): string {
-    const spans = this.registry.analyze(text, { threshold: MODE_THRESHOLD[mode] });
+    const spans = this.registry.analyze(text, { threshold: this.threshold ?? MODE_THRESHOLD[mode] });
     if (spans.length === 0) return text;
     let out = "";
     let cursor = 0;
@@ -180,7 +182,7 @@ export class PolicyEngine {
         cursor += 1; // the joining space
       }
       for (const span of this.registry.analyze(joined, {
-        threshold: MODE_THRESHOLD[mode],
+        threshold: this.threshold ?? MODE_THRESHOLD[mode],
       })) {
         if (!modeRedacts(mode, span.cls)) continue;
         // Which parts does this span touch? Crossing a boundary means the
@@ -275,7 +277,7 @@ export class PolicyEngine {
       else if (r.rawValue !== undefined && r.rawValue !== "") {
         const prefix = r.label ? `${r.label}: ` : "";
         const spans = this.registry
-          .analyze(prefix + r.rawValue, { threshold: MODE_THRESHOLD[mode] })
+          .analyze(prefix + r.rawValue, { threshold: this.threshold ?? MODE_THRESHOLD[mode] })
           .filter((s) => s.start >= prefix.length);
         const strongest = spans.filter((s) => modeRedacts(mode, s.cls))[0];
         if (strongest) {
