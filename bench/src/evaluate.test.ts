@@ -61,3 +61,14 @@ describe("RedactBench regression gates: fortress", () => {
     expect(result.overall.falseAlarms.length).toBeLessThanOrEqual(1);
   });
 });
+
+describe("RedactBench threshold override", () => {
+  it("an explicit threshold equal to the mode default changes nothing", () => {
+    const counts = (r: ReturnType<typeof evaluate>) => {
+      const { tp, fp, fn } = r.overall.micro;
+      return { tp, fp, fn };
+    };
+    expect(counts(evaluate("shield", 0.5))).toEqual(counts(evaluate("shield")));
+    expect(counts(evaluate("fortress", 0.3))).toEqual(counts(evaluate("fortress")));
+  });
+});
