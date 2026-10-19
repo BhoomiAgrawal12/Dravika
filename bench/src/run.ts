@@ -63,3 +63,164 @@ const out = join(fileURLToPath(new URL("..", import.meta.url)), "RESULTS.md");
 writeFileSync(out, doc);
 console.log(doc);
 console.log(`written to ${out}`);
+
+/**
+ * Precision/recall curve: sweep the analyzer threshold over the corpus and
+ * draw the measured operating points as pr-curve.svg. Generated like
+ * RESULTS.md, never drawn by hand.
+ */
+
+interface CurvePoint {
+  /** Every swept threshold that lands on this point, highest first. */
+  thresholds: number[];
+  micro: EvaluationResult["overall"]["micro"];
+}
+
+/** 1.00 down to 0.05. k / 20 keeps each step exact; 17 * 0.05 is 0.8500000000000001. */
+const THRESHOLDS = Array.from({ length: 20 }, (_, i) => (20 - i) / 20);
+
+function sweep(mode: EvaluationResult["mode"]): CurvePoint[] {
+  const points: CurvePoint[] = [];
+  for (const t of THRESHOLDS) {
+    const micro = evaluate(mode, t).overall.micro;
+    const last = points.at(-1);
+    if (last && last.micro.precision === micro.precision && last.micro.recall === micro.recall) {
+      last.thresholds.push(t);
+    } else {
+      points.push({ thresholds: [t], micro });
+    }
+  }
+  return points;
+}
+
+const series = [
+  // Both defaults sit in the crowded top-right corner: Shield's label goes
+  // above its marker, Fortress's drops below the cluster and the 90%
+  // gridline on a leader line.
+  { name: "Shield", cls: "shield", base: shield, label: { dx: -10, dy: -12 } },
+  { name: "Fortress", cls: "fortress", base: fortress, label: { dx: 40, dy: 90 } },
+].map((s) => {
+  const points = sweep(s.base.mode);
+  // The default marker sits wherever the unmodified run lands, so it cannot
+  // drift from the engine's per-mode thresholds.
+  const { precision, recall } = s.base.overall.micro;
+  const preset = points.find((p) => p.micro.precision === precision && p.micro.recall === recall);
+  if (!preset) throw new Error(`${s.name}: the default setting is not on the swept curve`);
+  return { ...s, points, preset };
+});
+
+const PLOT = { left: 72, right: 696, top: 100, bottom: 352 };
+/** Recall 20%-100% across, precision 70%-100% up. */
+const xAt = (recall: number) => PLOT.left + ((recall - 0.2) / 0.8) * (PLOT.right - PLOT.left);
+const yAt = (precision: number) => PLOT.top + ((1 - precision) / 0.3) * (PLOT.bottom - PLOT.top);
+const num = (v: number) => String(Math.round(v * 10) / 10);
+
+function thresholdText(ts: number[]): string {
+  const hi = ts[0]!.toFixed(2);
+  const lo = ts.at(-1)!.toFixed(2);
+  return hi === lo ? hi : `${lo}–${hi}`;
+}
+
+function dot(s: (typeof series)[number], p: CurvePoint, r: number): string {
+  const cx = num(xAt(p.micro.recall));
+  const cy = num(yAt(p.micro.precision));
+  const tip =
+    `${s.name}${p === s.preset ? " default" : ""} · threshold ${thresholdText(p.thresholds)} · ` +
+    `P ${pct(p.micro.precision)} · R ${pct(p.micro.recall)}`;
+  return (
+    `<g><title>${tip}</title><circle class="hit" cx="${cx}" cy="${cy}" r="12"/>` +
+    `<circle class="dot ${s.cls}" cx="${cx}" cy="${cy}" r="${r}"/></g>`
+  );
+}
+
+const aria =
+  "Line chart of redaction precision against recall as the analyzer threshold is swept " +
+  "from 1.00 down to 0.05. " +
+  series
+    .map((s) => `${s.name} default: precision ${pct(s.preset.micro.precision)}, recall ${pct(s.preset.micro.recall)}.`)
+    .join(" ");
+
+const chart: string[] = [];
+chart.push(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420" role="img" aria-label="${aria}">`,
+  "<style>",
+  ":root{--bg:#fcfcfb;--text:#0b0b0b;--muted:#52514e;--grid:#e4e3df;--shield:#2a78d6;--fortress:#eb6834}",
+  "@media (prefers-color-scheme: dark){:root{--bg:#1a1a19;--text:#ffffff;--muted:#c3c2b7;--grid:#383835;--shield:#3987e5;--fortress:#d95926}}",
+  'text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:12px;fill:var(--text)}',
+  ".title{font-size:16px;font-weight:600}",
+  ".legend{font-size:13px}",
+  ".strong{font-weight:600}",
+  ".muted{fill:var(--muted)}",
+  ".tick{font-variant-numeric:tabular-nums}",
+  ".bg{fill:var(--bg)}",
+  ".grid{stroke:var(--grid);stroke-width:1;shape-rendering:crispEdges}",
+  ".shield{--c:var(--shield)}",
+  ".fortress{--c:var(--fortress)}",
+  ".line{fill:none;stroke:var(--c);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}",
+  ".dot{fill:var(--c);stroke:var(--bg);stroke-width:2}",
+  ".hit{fill:transparent}",
+  ".leader{stroke:var(--muted);stroke-width:1}",
+  "</style>",
+  '<rect class="bg" width="720" height="420"/>',
+  '<text class="title" x="24" y="32">Redaction precision vs recall, analyzer threshold swept 0.05 to 1.00</text>',
+);
+
+let legendX = 24;
+for (const s of series) {
+  chart.push(
+    `<line class="line ${s.cls}" x1="${legendX}" y1="54" x2="${legendX + 20}" y2="54"/>`,
+    `<circle class="dot ${s.cls}" cx="${legendX + 10}" cy="54" r="4"/>`,
+    `<text class="legend" x="${legendX + 28}" y="58">${s.name}</text>`,
+  );
+  legendX += 28 + s.name.length * 7 + 20;
+}
+
+for (const p of [70, 80, 90, 100]) {
+  const gy = yAt(p / 100);
+  chart.push(
+    `<line class="grid" x1="${PLOT.left}" y1="${num(gy)}" x2="${PLOT.right}" y2="${num(gy)}"/>`,
+    `<text class="muted tick" x="${PLOT.left - 10}" y="${num(gy + 4)}" text-anchor="end">${p}%</text>`,
+  );
+}
+for (let r = 20; r <= 100; r += 10) {
+  chart.push(
+    `<text class="muted tick" x="${num(xAt(r / 100))}" y="${PLOT.bottom + 20}" text-anchor="middle">${r}%</text>`,
+  );
+}
+chart.push(
+  `<text class="muted" x="${(PLOT.left + PLOT.right) / 2}" y="${PLOT.bottom + 44}" text-anchor="middle">Recall</text>`,
+  `<text class="muted" transform="translate(20 ${(PLOT.top + PLOT.bottom) / 2}) rotate(-90)" text-anchor="middle">Precision</text>`,
+);
+
+for (const s of series) {
+  const pts = s.points.map((p) => `${num(xAt(p.micro.recall))},${num(yAt(p.micro.precision))}`);
+  chart.push(`<polyline class="line ${s.cls}" points="${pts.join(" ")}"/>`);
+}
+for (const s of series) {
+  for (const p of s.points) if (p !== s.preset) chart.push(dot(s, p, 4));
+}
+for (const s of series) chart.push(dot(s, s.preset, 7));
+
+for (const s of series) {
+  const cx = xAt(s.preset.micro.recall);
+  const cy = yAt(s.preset.micro.precision);
+  const tx = cx + s.label.dx;
+  const ty = cy + s.label.dy;
+  if (Math.hypot(s.label.dx, s.label.dy) > 24) {
+    // Leader from just outside the marker to just above the label's end.
+    const ey = ty - 15;
+    const len = Math.hypot(tx - cx, ey - cy);
+    const sx = cx + ((tx - cx) / len) * 11;
+    const sy = cy + ((ey - cy) / len) * 11;
+    chart.push(`<line class="leader" x1="${num(sx)}" y1="${num(sy)}" x2="${num(tx)}" y2="${num(ey)}"/>`);
+  }
+  chart.push(
+    `<text x="${num(tx)}" y="${num(ty)}" text-anchor="end"><tspan class="strong">${s.name} default</tspan>` +
+      ` · P ${pct(s.preset.micro.precision)} · R ${pct(s.preset.micro.recall)}</text>`,
+  );
+}
+chart.push("</svg>", "");
+
+const svgOut = join(fileURLToPath(new URL("..", import.meta.url)), "pr-curve.svg");
+writeFileSync(svgOut, chart.join("\n"));
+console.log(`written to ${svgOut}`);

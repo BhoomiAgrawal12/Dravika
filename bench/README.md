@@ -20,6 +20,7 @@ LATENCY.md         generated: local pipeline latency
 
 `RESULTS.md` and `LATENCY.md` are generated files. Do not edit them by hand;
 run the scripts again instead.
+`pr-curve.svg` is the precision/recall chart produced by `npm run bench`; do not edit it by hand.
 
 ## Corpus
 

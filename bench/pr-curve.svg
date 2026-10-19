@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420" role="img" aria-label="Line chart of redaction precision against recall as the analyzer threshold is swept from 1.00 down to 0.05. Shield default: precision 100.0%, recall 89.1%. Fortress default: precision 98.1%, recall 94.5%.">
+<style>
+:root{--bg:#fcfcfb;--text:#0b0b0b;--muted:#52514e;--grid:#e4e3df;--shield:#2a78d6;--fortress:#eb6834}
+@media (prefers-color-scheme: dark){:root{--bg:#1a1a19;--text:#ffffff;--muted:#c3c2b7;--grid:#383835;--shield:#3987e5;--fortress:#d95926}}
+text{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:12px;fill:var(--text)}
+.title{font-size:16px;font-weight:600}
+.legend{font-size:13px}
+.strong{font-weight:600}
+.muted{fill:var(--muted)}
+.tick{font-variant-numeric:tabular-nums}
+.bg{fill:var(--bg)}
+.grid{stroke:var(--grid);stroke-width:1;shape-rendering:crispEdges}
+.shield{--c:var(--shield)}
+.fortress{--c:var(--fortress)}
+.line{fill:none;stroke:var(--c);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.dot{fill:var(--c);stroke:var(--bg);stroke-width:2}
+.hit{fill:transparent}
+.leader{stroke:var(--muted);stroke-width:1}
+</style>
+<rect class="bg" width="720" height="420"/>
+<text class="title" x="24" y="32">Redaction precision vs recall, analyzer threshold swept 0.05 to 1.00</text>
+<line class="line shield" x1="24" y1="54" x2="44" y2="54"/>
+<circle class="dot shield" cx="34" cy="54" r="4"/>
+<text class="legend" x="52" y="58">Shield</text>
+<line class="line fortress" x1="114" y1="54" x2="134" y2="54"/>
+<circle class="dot fortress" cx="124" cy="54" r="4"/>
+<text class="legend" x="142" y="58">Fortress</text>
+<line class="grid" x1="72" y1="352" x2="696" y2="352"/>
+<text class="muted tick" x="62" y="356" text-anchor="end">70%</text>
+<line class="grid" x1="72" y1="268" x2="696" y2="268"/>
+<text class="muted tick" x="62" y="272" text-anchor="end">80%</text>
+<line class="grid" x1="72" y1="184" x2="696" y2="184"/>
+<text class="muted tick" x="62" y="188" text-anchor="end">90%</text>
+<line class="grid" x1="72" y1="100" x2="696" y2="100"/>
+<text class="muted tick" x="62" y="104" text-anchor="end">100%</text>
+<text class="muted tick" x="72" y="372" text-anchor="middle">20%</text>
+<text class="muted tick" x="150" y="372" text-anchor="middle">30%</text>
+<text class="muted tick" x="228" y="372" text-anchor="middle">40%</text>
+<text class="muted tick" x="306" y="372" text-anchor="middle">50%</text>
+<text class="muted tick" x="384" y="372" text-anchor="middle">60%</text>
+<text class="muted tick" x="462" y="372" text-anchor="middle">70%</text>
+<text class="muted tick" x="540" y="372" text-anchor="middle">80%</text>
+<text class="muted tick" x="618" y="372" text-anchor="middle">90%</text>
+<text class="muted tick" x="696" y="372" text-anchor="middle">100%</text>
+<text class="muted" x="384" y="396" text-anchor="middle">Recall</text>
+<text class="muted" transform="translate(20 226) rotate(-90)" text-anchor="middle">Precision</text>
+<polyline class="line shield" points="100.4,100 469.1,100 554.2,100 582.5,100 610.9,100 625.1,116.5 625.1,162.2"/>
+<polyline class="line fortress" points="100.4,333.3 469.1,121 554.2,118.3 582.5,117.5 639.3,100 653.5,115.8 653.5,160"/>
+<g><title>Shield · threshold 1.00 · P 100.0% · R 23.6%</title><circle class="hit" cx="100.4" cy="100" r="12"/><circle class="dot shield" cx="100.4" cy="100" r="4"/></g>
+<g><title>Shield · threshold 0.90–0.95 · P 100.0% · R 70.9%</title><circle class="hit" cx="469.1" cy="100" r="12"/><circle class="dot shield" cx="469.1" cy="100" r="4"/></g>
+<g><title>Shield · threshold 0.85 · P 100.0% · R 81.8%</title><circle class="hit" cx="554.2" cy="100" r="12"/><circle class="dot shield" cx="554.2" cy="100" r="4"/></g>
+<g><title>Shield · threshold 0.80 · P 100.0% · R 85.5%</title><circle class="hit" cx="582.5" cy="100" r="12"/><circle class="dot shield" cx="582.5" cy="100" r="4"/></g>
+<g><title>Shield · threshold 0.30 · P 98.0% · R 90.9%</title><circle class="hit" cx="625.1" cy="116.5" r="12"/><circle class="dot shield" cx="625.1" cy="116.5" r="4"/></g>
+<g><title>Shield · threshold 0.05–0.25 · P 92.6% · R 90.9%</title><circle class="hit" cx="625.1" cy="162.2" r="12"/><circle class="dot shield" cx="625.1" cy="162.2" r="4"/></g>
+<g><title>Fortress · threshold 1.00 · P 72.2% · R 23.6%</title><circle class="hit" cx="100.4" cy="333.3" r="12"/><circle class="dot fortress" cx="100.4" cy="333.3" r="4"/></g>
+<g><title>Fortress · threshold 0.90–0.95 · P 97.5% · R 70.9%</title><circle class="hit" cx="469.1" cy="121" r="12"/><circle class="dot fortress" cx="469.1" cy="121" r="4"/></g>
+<g><title>Fortress · threshold 0.85 · P 97.8% · R 81.8%</title><circle class="hit" cx="554.2" cy="118.3" r="12"/><circle class="dot fortress" cx="554.2" cy="118.3" r="4"/></g>
+<g><title>Fortress · threshold 0.80 · P 97.9% · R 85.5%</title><circle class="hit" cx="582.5" cy="117.5" r="12"/><circle class="dot fortress" cx="582.5" cy="117.5" r="4"/></g>
+<g><title>Fortress · threshold 0.35–0.75 · P 100.0% · R 92.7%</title><circle class="hit" cx="639.3" cy="100" r="12"/><circle class="dot fortress" cx="639.3" cy="100" r="4"/></g>
+<g><title>Fortress · threshold 0.05–0.25 · P 92.9% · R 94.5%</title><circle class="hit" cx="653.5" cy="160" r="12"/><circle class="dot fortress" cx="653.5" cy="160" r="4"/></g>
+<g><title>Shield default · threshold 0.35–0.75 · P 100.0% · R 89.1%</title><circle class="hit" cx="610.9" cy="100" r="12"/><circle class="dot shield" cx="610.9" cy="100" r="7"/></g>
+<g><title>Fortress default · threshold 0.30 · P 98.1% · R 94.5%</title><circle class="hit" cx="653.5" cy="115.8" r="12"/><circle class="dot fortress" cx="653.5" cy="115.8" r="7"/></g>
+<text x="600.9" y="88" text-anchor="end"><tspan class="strong">Shield default</tspan> · P 100.0% · R 89.1%</text>
+<line class="leader" x1="658.6" y1="125.6" x2="693.5" y2="190.8"/>
+<text x="693.5" y="205.8" text-anchor="end"><tspan class="strong">Fortress default</tspan> · P 98.1% · R 94.5%</text>
+</svg>

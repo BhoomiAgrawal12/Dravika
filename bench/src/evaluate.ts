@@ -81,14 +81,14 @@ function offset(items: { box: [number, number, number, number] }[], dy: number) 
   }));
 }
 
-export function evaluate(mode: PrivacyMode): EvaluationResult {
+export function evaluate(mode: PrivacyMode, threshold?: number): EvaluationResult {
   const captures: CaptureResult[] = [];
   const allGt: GroundTruthItem[] = [];
   const allPred: PredictionItem[] = [];
 
   for (const [i, capture] of CORPUS.entries()) {
     const vault = new Vault();
-    const policy = new PolicyEngine(defaultRegistry(), vault, "bench.1");
+    const policy = new PolicyEngine(defaultRegistry(), vault, "bench.1", threshold);
     const sanitized = policy.sanitize(capture.regions, mode, "benchmark run");
     const predictions = predictionsFrom(capture, sanitized);
     captures.push({

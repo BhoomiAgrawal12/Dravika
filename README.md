@@ -19,6 +19,23 @@ Implementation and measured limits: [docs/IMPLEMENTATION-EVIDENCE.md](docs/IMPLE
 
 ![Dravika data flow](docs/diagrams/dravika-flow-corrected.png)
 
+## Metrics
+
+![Precision vs recall](bench/pr-curve.svg)
+
+| | Shield | Fortress |
+|---|---|---|
+| Precision | **100.0%** | **98.1%** |
+| Recall | **89.1%** | **94.5%** |
+| Invariant-class leaks (Aadhaar, PAN, cards, faces, QR) | **0** | **0** |
+
+- **71 ms** local pipeline, p50, single-threaded WASM on an Intel i3 CPU (budget 175 ms)
+- **259** unit tests plus isolated-Chromium form and media checks
+- **One** network door, enforced by `npm run check:egress`
+
+Prototype benchmark: RedactBench-Web, 18 synthetic captures.
+[Results](bench/RESULTS.md) · [Latency](bench/LATENCY.md) · [Evidence](docs/IMPLEMENTATION-EVIDENCE.md)
+
 ## Results at a glance
 
 All numbers can be reproduced with the commands below. The full tables and
@@ -30,7 +47,7 @@ known limits are in [bench/RESULTS.md](bench/RESULTS.md) and
 | PII redaction, Shield mode (18 synthetic captures, 55 items) | **100% precision, 89.1% recall**, 0 invariant-class leaks | `npm run bench` |
 | PII redaction, Fortress mode | **98.1% precision, 94.5% recall**, 0 invariant-class leaks | `npm run bench` |
 | Local perception latency (Intel i3-6100U, single-thread WASM) | **71.2 ms p50** end to end, 54.4 ms of it face inference | `npm run bench:latency` |
-| Unit tests | **258 passing** across five workspaces | `npm test` |
+| Unit tests | **259 passing** across five workspaces | `npm test` |
 | Network egress | Build fails if any network API is used outside the two allowlisted transport modules | `npm run check:egress` |
 | End-to-end browser runs | Google- and Microsoft-style forms, image/PDF upload approval, QR masking | `npm run test:browser` |
 | On-device model footprint | ~1.27 MB UltraFace ONNX, ~2.95 MB OCR language data, ~2.86 MB OCR WASM | n/a |
